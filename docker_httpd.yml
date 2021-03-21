@@ -1,0 +1,43 @@
+- name: "Configuring Httpd Setup on Docker-ce"
+  hosts: worker1
+  tasks:
+  - name: "Configuring Yum repository for Docker-ce"
+    copy:
+        src: "./docker-ce.repo"
+        dest: "/etc/yum.repos.d/"
+    become: yes
+  - name: "Removing Runc"
+    package:
+        name: "runc"
+        state: absent
+  - name: "Installing Docker-ce"
+    package:
+        name: "docker-ce"
+        state: present
+  - name: "Starting Docker Service"
+    service:
+        name: "docker"
+        state: started
+        enabled: true
+  - name: "Installing python3"
+    package:
+        name: "python3"
+        state: present
+  - name: "Installing docker-py"
+    pip:
+        name: "docker-py >= 1.7.0"
+  - name: "Fetching httpd:latest Docker Image"
+    docker_image:
+        name: "httpd:latest"
+        source: pull
+  - name: "Starting Docker Container"
+    docker_container:
+        name: "httpd_server"
+        image: httpd:latest
+        interactive: true
+        state: started
+        published_ports: "8000:80"
+  - copy:
+        src: "./web_page.html"
+        dest: "/var/www/html/"
+    become: true
