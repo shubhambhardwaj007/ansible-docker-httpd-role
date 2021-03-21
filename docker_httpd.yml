@@ -37,7 +37,11 @@
         interactive: true
         state: started
         published_ports: "8000:80"
-  - copy:
-        src: "./web_page.html"
-        dest: "/var/www/html/"
+        volumes:
+                - /webpages:/usr/local/apache2/htdocs/
+
+  - name: "Copying Webpages"
+    copy:
+        src: "web_page.html"
+        dest: "/webpages"
     become: true
